@@ -1,9 +1,12 @@
 package com.example.practica3formula1.Componentes
 
 
+import Rutas.Rutas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,7 +35,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.practica3formula1.Pilotos.Pilotos
+import com.example.practica3formula1.Pilotos.PilotosViewModel
 import com.example.practica3formula1.R
 import com.example.practica3formula1.ui.theme.AlfaRomeo
 import com.example.practica3formula1.ui.theme.AlphaTauri
@@ -44,7 +49,7 @@ import com.example.practica3formula1.ui.theme.RedBull
 import com.example.practica3formula1.ui.theme.Williams
 
 @Composable
-fun FantasyF1() {
+fun FantasyF1(navController : NavHostController, viewModel: PilotosViewModel) {
     var lista by remember { mutableStateOf(generateSampleData()) }
     var searchQuery by remember { mutableStateOf("") }
     var isHintVisible by remember { mutableStateOf(true) }
@@ -73,12 +78,18 @@ fun FantasyF1() {
                 .padding(16.dp)
                 .weight(1f)
         ) {
-            val filteredList = lista.filter { piloto ->
+            val filteredList = viewModel.listaPilotos.filter { piloto ->
                 piloto.equipo.contains(searchQuery, ignoreCase = true)
             }
 
             items(filteredList) { piloto ->
-                FilaPiloto(piloto)
+                Box(
+                    modifier = Modifier.clickable {
+                        navController.navigate("${Rutas.DetallesPiloto.ruta}/${piloto.nombre}")
+                    }
+                ) {
+                    FilaPiloto(piloto)
+                }
             }
         }
 
@@ -92,7 +103,11 @@ fun FantasyF1() {
         ) {
             Button(
                 onClick = {
-                    // Lógica para agregar piloto
+                    navController.navigate(Rutas.CrearPilotos.ruta) {
+                        popUpTo(Rutas.PantallaPilotos.ruta) {
+                            inclusive = false
+                        }
+                    }
                 },
                 modifier = Modifier
                     .weight(1f)
